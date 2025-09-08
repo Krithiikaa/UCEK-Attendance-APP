@@ -16,7 +16,7 @@ A simple web-based attendance system that checks whether a student is connected 
 ---
 
 ## 🖥️ Demo
-Live Project: [Click Here](https://your-username.github.io/attendance-app/)
+Live Project: [Click Here](https://krithiikaa.github.io/UCEK-Attendance-APP/)
 
 ---
 
