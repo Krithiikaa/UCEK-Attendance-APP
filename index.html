@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCEK Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #fda085 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .college-name {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .attendance-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .attendance-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: left 0.5s ease;
+        }
+
+        .attendance-btn:hover:before {
+            left: 100%;
+        }
+
+        .attendance-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .attendance-btn:active {
+            transform: translateY(0);
+        }
+
+        .status-indicator {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .status-connected {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+        }
+
+        .status-disconnected {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .popup-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            animation: checkmark 0.5s ease;
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(360deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .popup h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .popup p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .popup-btn {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .info-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .datetime {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📚</div>
+            <h1>Attendance System</h1>
+            <p class="college-name">University College of Engineering Kanchipuram</p>
+        </div>
+
+        <div class="form-group">
+            <label for="rollNo">Enter Roll Number</label>
+            <input type="number" id="rollNo" min="1" max="60" placeholder="Enter your roll number (1-60)" required>
+        </div>
+
+        <button class="attendance-btn" onclick="markAttendance()">
+            Mark Attendance
+        </button>
+
+        <div id="statusIndicator" class="status-indicator">
+            Checking connection status...
+        </div>
+
+        <div class="info-text">
+            📍 You must be connected to college WiFi to mark attendance
+        </div>
+
+        <div class="datetime" id="datetime"></div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="popup" id="popup">
+        <div class="popup-icon">✓</div>
+        <h2>Success!</h2>
+        <p>Your attendance has been marked</p>
+        <p id="popupDetails"></p>
+        <button class="popup-btn" onclick="closePopup()">OK</button>
+    </div>
+
+    <script>
+    // College IP address ranges (replace with actual college IPs)
+        const COLLEGE_IP_RANGES = [
+            '192.168.1.', // Example college IP range
+            '10.0.0.',    // Another example range
+            '172.16.',    // Example
+            '223.178.82.81',  // Your IPv4 address
+            '2401:4900:1cc8:d1e0:81be:e593:650c:e05c' // Your IPv6 address
+        ];
+
+        let currentIP = null; // will be detected automatically
+
+        // Get actual public IP (works for IPv4 or IPv6)
+        fetch('https://api64.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+            currentIP = data.ip;
+            updateConnectionStatus();
+            console.log("Your IP:", currentIP);
+        })
+        .catch(err => {
+            console.error("Error fetching IP:", err);
+            document.getElementById('statusIndicator').innerHTML = '⚠️ Unable to fetch IP';
+        });
+
+        // Function to check if connected to college network
+        function isOnCollegeNetwork() {
+            if (!currentIP) return false; // IP not yet detected
+            return COLLEGE_IP_RANGES.some(range =>
+                currentIP.startsWith(range) || currentIP === range
+            );
+        }
+
+        // Update connection status
+        function updateConnectionStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (isOnCollegeNetwork()) {
+                statusIndicator.className = 'status-indicator status-connected';
+                statusIndicator.innerHTML = '🟢 Connected to College WiFi';
+            } else {
+                statusIndicator.className = 'status-indicator status-disconnected';
+                statusIndicator.innerHTML = '🔴 Not connected to College WiFi';
+            }
+        }
+
+        // Mark attendance function
+        function markAttendance() {
+            const rollNo = document.getElementById('rollNo').value;
+            
+            // Validate roll number
+            if (!rollNo || rollNo < 1 || rollNo > 60) {
+                alert('Please enter a valid roll number between 1 and 60');
+                return;
+            }
+
+            // Check if on college network
+            if (!isOnCollegeNetwork()) {
+                alert('You must be connected to college WiFi to mark attendance!');
+                return;
+            }
+
+            // Get current date and time
+            const now = new Date();
+            const date = now.toLocaleDateString();
+            const time = now.toLocaleTimeString();
+
+            // Show success popup
+            const overlay = document.getElementById('overlay');
+            const popup = document.getElementById('popup');
+            const popupDetails = document.getElementById('popupDetails');
+        
+            popupDetails.innerHTML = `
+                Roll No: ${rollNo}<br>
+                Date: ${date}<br>
+                Time: ${time}
+            `;
+        
+            overlay.classList.add('show');
+            popup.classList.add('show');
+
+            // Store attendance (in real app, this would be sent to server)
+            console.log('Attendance marked:', {
+                rollNo: rollNo,
+                date: date,
+                time: time,
+                ip: currentIP
+            });
+        }
+
+        // Close popup function
+        function closePopup() {
+            const overlay = document.getElementById('overlay');
+            const popup = document.getElementById('popup');
+            
+            overlay.classList.remove('show');
+            popup.classList.remove('show');
+            
+            // Clear the roll number field
+            document.getElementById('rollNo').value = '';
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const datetime = document.getElementById('datetime');
+            const now = new Date();
+            datetime.innerHTML = `📅 ${now.toLocaleDateString()} | 🕐 ${now.toLocaleTimeString()}`;
+        }
+
+        // Initialize clock
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // Add enter key support
+        document.getElementById('rollNo').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                markAttendance();
+            }
+        });
+
+        console.log('Production Mode: Using actual IP detection.');
+    </script>
+
+</body>
+</html>
